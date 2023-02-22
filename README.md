@@ -1,2 +1,15 @@
 # StealthGame
-Unreal Engine game with common stealth mechanics
+Unreal Engine game with common stealth mechanics inspired by Hitman
+
+
+Implemented mechanics:
+
+- Suspicion System
+- Target detection with AI Perception
+- Chasing, Patrolling, Searching around suspicious location
+
+To be implemented:
+- Attacking
+- Disguise System
+- Distraction, noise stimuli
+
