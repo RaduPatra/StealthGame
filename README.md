@@ -6,7 +6,7 @@ Implemented mechanics:
 
 - Suspicion System
 - Target detection with AI Perception
-- Chasing, Patrolling, Searching around suspicious location
+- Behaviors for Chasing, Patrolling, Searching around suspicious location
 
 To be implemented:
 - Attacking
