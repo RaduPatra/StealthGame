@@ -14,6 +14,7 @@ To be implemented:
 - Disguise System (Change player mesh + AI Reactions)
 - Crouching for slower detection
 - Improve chasing and searching using EQS
-
+- Win State: steal item and escape to location
+- Lose State: getting caught
 
 
