@@ -1,15 +1,19 @@
 # StealthGame
 Unreal Engine game with common stealth mechanics inspired by Hitman  
-Showcase Video (Work in Progress) : to be added
+Work in Progress video :https://www.youtube.com/watch?v=kWLQR2_Irmw
 
 Implemented mechanics:
 
 - Suspicion System
-- Target detection with AI Perception
+- Target detection with AI Perception. Faster detection if you are close to enemy.
 - Behaviors for Chasing, Patrolling, Searching around suspicious location
 
 To be implemented:
-- Attacking
-- Disguise System
+
 - Distraction, noise stimuli
+- Disguise System (Change player mesh + AI Reactions)
+- Crouching for slower detection
+- Improve chasing and searching using EQS
+
+
 
