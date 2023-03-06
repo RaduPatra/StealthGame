@@ -1,6 +1,6 @@
 # StealthGame
 Unreal Engine game with common stealth mechanics inspired by Hitman  
-Work in Progress video :https://www.youtube.com/watch?v=kWLQR2_Irmw
+Work in Progress video 1 :https://www.youtube.com/watch?v=kWLQR2_Irmw
 
 Implemented mechanics:
 
