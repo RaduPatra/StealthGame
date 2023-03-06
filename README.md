@@ -5,7 +5,8 @@ Work in Progress video 1 :https://www.youtube.com/watch?v=kWLQR2_Irmw
 Implemented mechanics:
 
 - Suspicion System
-- Target detection with AI Perception. Faster detection if you are close to enemy.
+- Target detection with AI Perception. Faster detection if closer to enemy.
+- Suspicion world space UI
 - Behaviors for Chasing, Patrolling, Searching around suspicious location
 
 To be implemented:
