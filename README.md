@@ -6,7 +6,7 @@ Implemented mechanics:
 
 - Suspicion System
 - Target detection with AI Perception. Faster detection if closer to enemy.
-- Suspicion world space UI
+- Suspicion world space UI widget
 - Behaviors for Chasing, Patrolling, Searching around suspicious location
 
 To be implemented:
