@@ -1,7 +1,8 @@
 # StealthGame
-Unreal Engine game with common stealth mechanics inspired by Hitman. You play as a fragile character tasked with stealing a valuable item without getting caught. Traps are your only means of defeating enemies, so you must cleverly lure them into your traps and outsmart them using the environment.
+Unreal Engine game with common stealth mechanics inspired by Hitman. You play as a fragile character tasked with stealing a valuable item without getting caught. Traps are your only means of defeating enemies, so you must cleverly lure them into your traps and outsmart them using the environment.  
+
 Work in Progress video 1 :https://www.youtube.com/watch?v=kWLQR2_Irmw  
-Work in Progress video 1 :https://youtu.be/6uISkR-HPmQ  
+Work in Progress video 2 :https://youtu.be/6uISkR-HPmQ  
 
 Implemented mechanics:
 
