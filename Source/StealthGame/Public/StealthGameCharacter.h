@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DistractionProjectile.h"
+#include "Components/SplineComponent.h"
 #include "GameFramework/Character.h"
 #include "StealthGameCharacter.generated.h"
 
@@ -18,6 +20,31 @@ class AStealthGameCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Throw, meta = (AllowPrivateAccess = "true"))
+	USceneComponent* ThrowLocationComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Throw, meta = (AllowPrivateAccess = "true"))
+	USplineComponent* ThrowSplineComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Throw, meta = (AllowPrivateAccess = "true"))
+	FVector CameraDirOffset;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Throw, meta = (AllowPrivateAccess = "true"))
+	float ThrowLaunchSpeed = 700.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Throw, meta = (AllowPrivateAccess = "true"))
+	float ProjectileRadius = 10.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Throw, meta = (AllowPrivateAccess = "true"))
+	float SplineScale = .2;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Throw, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<ADistractionProjectile> ProjectileClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Throw, meta = (AllowPrivateAccess = "true"))
+	UStaticMesh* SplineMeshToUse;
+
+	TArray<class USplineMeshComponent*> SplineMeshComponents;
 public:
 	AStealthGameCharacter();
 
@@ -26,12 +53,29 @@ public:
 	float TurnRateGamepad;
 
 protected:
-
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
 	/** Called for side to side input */
 	void MoveRight(float Value);
+
+	UFUNCTION(BlueprintCallable)
+	void MakeNoiseTest();
+
+	UFUNCTION(BlueprintCallable)
+	void DisplayPredictedPath();
+
+	void Tick(float DeltaSeconds) override;
+
+	UFUNCTION(BlueprintCallable)
+	void ThrowProjectile();
+	
+	FVector GetThrowVelocity() const;
+	UFUNCTION(BlueprintCallable)
+	void CleanupSpline();
+	FVector GetThrowLocation() const;
+	void PredictPath(TArray<FVector>& OutPathPositions);
+	void DrawSplineMesh();
 
 	/** 
 	 * Called via input to turn at a given rate. 
@@ -62,4 +106,3 @@ public:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };
-

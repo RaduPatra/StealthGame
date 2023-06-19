@@ -6,7 +6,9 @@
 #include "AISettings.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "AIController.h"
+#include "Camera/CameraComponent.h"
 #include "Perception/AIPerceptionTypes.h"
+#include "Perception/AISense_Hearing.h"
 
 // Sets default values
 ANPC_Character::ANPC_Character()
@@ -21,7 +23,10 @@ ANPC_Character::ANPC_Character()
 void ANPC_Character::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	ensureMsgf(DetectionRateCurve, TEXT("You need to assign the detection curve!!"));
 }
+
 
 
 

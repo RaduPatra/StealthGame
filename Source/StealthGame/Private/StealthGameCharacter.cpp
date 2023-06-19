@@ -4,9 +4,12 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/SplineMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Perception/AISense_Hearing.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AStealthGameCharacter
@@ -44,11 +47,17 @@ AStealthGameCharacter::AStealthGameCharacter()
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	// Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	ThrowLocationComponent = CreateDefaultSubobject<USceneComponent>(TEXT("ThrowLocationComponent"));
+	ThrowLocationComponent->SetupAttachment(RootComponent);
+	ThrowSplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("ThrowSplineComponent"));
+	ThrowSplineComponent->SetupAttachment(RootComponent);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -115,15 +124,168 @@ void AStealthGameCharacter::MoveForward(float Value)
 
 void AStealthGameCharacter::MoveRight(float Value)
 {
-	if ( (Controller != nullptr) && (Value != 0.0f) )
+	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
+
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void AStealthGameCharacter::MakeNoiseTest()
+{
+	//do line trace from camera
+	FHitResult HitResult;
+	FCollisionQueryParams TraceParams;
+	TraceParams.AddIgnoredActor(this);
+
+	if (!FollowCamera)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("no camera"));
+		return;
+	}
+	FVector Start = FollowCamera->GetComponentLocation();
+	FVector End = Start + GetControlRotation().Vector() * 100000;
+	GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, TraceParams);
+	if (HitResult.bBlockingHit)
+	{
+		DrawDebugSphere(GetWorld(),
+		                HitResult.Location,
+		                12,
+		                12,
+		                FColor::Red,
+		                false,
+		                2,
+		                0,
+		                1);
+
+		UAISense_Hearing::ReportNoiseEvent(GetWorld(),
+		                                   HitResult.Location,
+		                                   1,
+		                                   this,
+		                                   1000);
+	}
+}
+
+
+void AStealthGameCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	// DisplayPredictedPath();
+}
+
+void AStealthGameCharacter::ThrowProjectile()
+{
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
+	if (const ADistractionProjectile* Projectile = GetWorld()->SpawnActor<ADistractionProjectile>(
+		ProjectileClass, GetThrowLocation(), FRotator::ZeroRotator, SpawnParams))
+	{
+		Projectile->Throw(GetThrowVelocity());
+	}
+}
+
+FVector AStealthGameCharacter::GetThrowVelocity() const
+{
+	return (GetControlRotation().Vector() + CameraDirOffset) * ThrowLaunchSpeed;
+}
+
+void AStealthGameCharacter::CleanupSpline()
+{
+	ThrowSplineComponent->ClearSplinePoints();
+	for (const auto SplineMesh : SplineMeshComponents)
+	{
+		SplineMesh->DestroyComponent(); //maybe poll this in the future?
+	}
+	SplineMeshComponents.Empty();
+}
+
+FVector AStealthGameCharacter::GetThrowLocation() const
+{
+	const FRotator CameraRotator = FRotator(0, GetControlRotation().Yaw, 0);
+	const FVector ThrowOffset = ThrowLocationComponent->GetRelativeLocation();
+	const FVector RotatedThrowOffset = CameraRotator.RotateVector(ThrowOffset);
+	return GetActorLocation() + RotatedThrowOffset;
+}
+
+void AStealthGameCharacter::PredictPath(TArray<FVector>& OutPathPositions)
+{
+	FHitResult OutHit;
+	FVector OutLastTraceDestination;
+
+	FVector StartPos = GetThrowLocation();
+	FVector LaunchVelocity = GetThrowVelocity();
+	TArray<AActor*> ActorsToIgnore{this};
+
+	UGameplayStatics::Blueprint_PredictProjectilePath_ByTraceChannel(
+		GetWorld(),
+		OutHit,
+		OutPathPositions,
+		OutLastTraceDestination,
+		StartPos,
+		LaunchVelocity,
+		true,
+		ProjectileRadius,
+		ECC_WorldDynamic,
+		false,
+		ActorsToIgnore,
+		EDrawDebugTrace::None,
+		1,
+		15.0f,
+		5.0f);
+
+	DrawDebugSphere(GetWorld(),
+	                OutHit.ImpactPoint,
+	                12,
+	                12,
+	                FColor::Red,
+	                false,
+	                0,
+	                0,
+	                1);
+}
+
+void AStealthGameCharacter::DrawSplineMesh()
+{
+	for (int i = 0; i < ThrowSplineComponent->GetNumberOfSplinePoints() - 2; ++i)
+	{
+		USplineMeshComponent* NewSplineMesh = NewObject<USplineMeshComponent>(this);
+		NewSplineMesh->SetStaticMesh(SplineMeshToUse);
+		NewSplineMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		NewSplineMesh->CanCharacterStepUpOn = ECB_No;
+		NewSplineMesh->SetCastShadow(false);
+		NewSplineMesh->SetBoundsScale(3.f);
+		// NewSplineMesh->SetMobility(EComponentMobility::Movable);
+
+		FVector StartLocation;
+		FVector StartTangent;
+		FVector EndLocation;
+		FVector EndTangent;
+		ThrowSplineComponent->GetLocationAndTangentAtSplinePoint(i, StartLocation, StartTangent,
+		                                                         ESplineCoordinateSpace::World);
+		ThrowSplineComponent->GetLocationAndTangentAtSplinePoint(i + 1, EndLocation, EndTangent,
+		                                                         ESplineCoordinateSpace::World);
+
+		NewSplineMesh->SetForwardAxis(ESplineMeshAxis::Z);
+		NewSplineMesh->SetStartScale(FVector2D(SplineScale, SplineScale));
+		NewSplineMesh->SetEndScale(FVector2D(SplineScale, SplineScale));
+		NewSplineMesh->SetStartAndEnd(StartLocation, StartTangent, EndLocation, EndTangent, true);
+		NewSplineMesh->RegisterComponent();
+		SplineMeshComponents.Add(NewSplineMesh);
+	}
+}
+
+void AStealthGameCharacter::DisplayPredictedPath()
+{
+	CleanupSpline();
+	TArray<FVector> OutPathPositions;
+	PredictPath(OutPathPositions);
+	ThrowSplineComponent->SetSplinePoints(OutPathPositions, ESplineCoordinateSpace::World, true);
+	DrawSplineMesh();
 }

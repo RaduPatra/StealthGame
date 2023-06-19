@@ -21,7 +21,6 @@ void UAISettings::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
-	
 }
 
 

@@ -11,6 +11,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
+#include "Perception/AISense_Hearing.h"
 #include "Perception/AISense_Sight.h"
 
 ANPC_AIController::ANPC_AIController()
@@ -36,6 +37,11 @@ void ANPC_AIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	CalculateDetectionLevel(DeltaSeconds);
+
+	if (DetectionPercentage > 0)
+	{
+		CreateSuspicionWidget();
+	}
 	// UE_LOG(LogTemp, Warning, TEXT("DetectionPercentage %f"), DetectionPercentage);
 }
 
@@ -46,6 +52,7 @@ void ANPC_AIController::CreateSuspicionWidget()
 		ActiveSuspicionMeter = CreateWidget<UWorldUserWidget>(GetWorld(), SuspicionMeterWidgetClass);
 	}
 
+	//move this if to function called:
 	if (ActiveSuspicionMeter)
 	{
 		ActiveSuspicionMeter->AttachedActor = ControlledPawn;
@@ -57,19 +64,19 @@ void ANPC_AIController::CreateSuspicionWidget()
 	}
 }
 
-float ANPC_AIController::CalculateSuspiconRate()
+float ANPC_AIController::CalculateSuspicionRate()
 {
-	auto SenseConfig = GetPerceptionComponent()->GetSenseConfig(UAISense::GetSenseID<UAISense_Sight>());
+	const auto SenseConfig = GetPerceptionComponent()->GetSenseConfig(UAISense::GetSenseID<UAISense_Sight>());
 
-	auto SightSenseConfig = Cast<UAISenseConfig_Sight>(SenseConfig);
+	const auto SightSenseConfig = Cast<UAISenseConfig_Sight>(SenseConfig);
 
 	if (!ensure(SightSenseConfig)) return 0;
-	float SightRadius = SightSenseConfig->SightRadius;
+	const float SightRadius = SightSenseConfig->SightRadius;
 
 	if (!ensure(TargetActor)) return 0;
 
-	auto DistanceToTarget = FVector::Distance(GetPawn()->GetActorLocation(), TargetActor->GetActorLocation());
-	auto NormalizedDistance = UKismetMathLibrary::NormalizeToRange(DistanceToTarget, 0, SightRadius);
+	const auto DistanceToTarget = FVector::Distance(GetPawn()->GetActorLocation(), TargetActor->GetActorLocation());
+	const auto NormalizedDistance = UKismetMathLibrary::NormalizeToRange(DistanceToTarget, 0, SightRadius);
 
 	return ControlledPawn->DetectionRateCurve->GetFloatValue(NormalizedDistance);
 }
@@ -79,27 +86,17 @@ void ANPC_AIController::CalculateDetectionLevel(float DeltaSeconds)
 	if (!ensureMsgf(ControlledPawn->DetectionRateCurve, TEXT("You need to assign the detection curve!!"))) return;
 	if (bIsTargetInSight)
 	{
-		CreateSuspicionWidget();
-
-		const float SuspicionRate = CalculateSuspiconRate();
+		const float SuspicionRate = CalculateSuspicionRate();
 		DetectionPercentage += SuspicionRate * DeltaSeconds;
 		DetectionPercentage = FMath::Clamp(DetectionPercentage, 0, 1);
 
-		if (CanTriggerSuspicion() && !IsSuspicious())
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Started Sus"));
-
-			//play anim, show '?' UI etc.. - only show visual queues here
-			OnSuspicion();
-
-			SetDetectionState(EDetectionState::Suspicious);
-		}
-		else if (CanTriggerInvestigation() && !IsInvestigating())
+		if (CanTriggerInvestigation() && !IsInvestigating())
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Started Investigating"));
 			if (ensure(TargetActor))
 			{
 				//only set target if suspicious enough
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange, "INVESTIGATING");
 				SetTargetActor(TargetActor);
 			}
 
@@ -118,14 +115,13 @@ void ANPC_AIController::CalculateDetectionLevel(float DeltaSeconds)
 			DetectionPercentage -= ControlledPawn->SuspicionDecreaseRate * DeltaSeconds;
 			DetectionPercentage = FMath::Clamp(DetectionPercentage, 0, 1);
 
-			if (CanTriggerSuspicion() && IsInvestigating())
-			{
-				SetDetectionState(EDetectionState::Suspicious);
-			}
-			else if (DetectionPercentage < ControlledPawn->StartSuspicionPercent && IsSuspicious())
-			{
-				SetDetectionState(EDetectionState::Neutral);
-			}
+			SetDetectionState(EDetectionState::Neutral);
+
+			// if (DetectionPercentage <= 0)
+			// {
+			// 	UE_LOG(LogTemp, Warning, TEXT("Stopped Investigating"));
+			// 	SetDetectionState(EDetectionState::Neutral);
+			// }
 		}
 	}
 }
@@ -165,6 +161,17 @@ void ANPC_AIController::PerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 		{
 			TargetActor = Actor;
 		}
+		// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("Sight"));
+	}
+	else if (Stimulus.Type == UAISense::GetSenseID<UAISense_Hearing>())
+	{
+		// GetBlackboardComponent()->SetValueAsBool(BBKeys::HeardSoundKey, true);
+		GetBlackboardComponent()->SetValueAsVector(BBKeys::LastSoundLocationKey, Stimulus.StimulusLocation);
+
+		UE_LOG(LogTemp, Warning, TEXT("Hearing"));
+
+		auto debugHearText = "Heard Sound " + Stimulus.StimulusLocation.ToString();
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, debugHearText);
 	}
 }
 
@@ -198,7 +205,7 @@ bool ANPC_AIController::CanTriggerAlert() const
 
 bool ANPC_AIController::IsSuspicious() const
 {
-	return CurrentDetectionState == EDetectionState::Suspicious;
+	return CurrentDetectionState == EDetectionState::Searching;
 }
 
 bool ANPC_AIController::IsInvestigating() const
@@ -214,10 +221,11 @@ bool ANPC_AIController::IsAlert() const
 
 bool ANPC_AIController::CanDecreaseDetection() const
 {
-	return DetectionPercentage < ControlledPawn->StartInvestigatePercent;
+	return DetectionPercentage < ControlledPawn->StartInvestigatePercent
+		&& !(CurrentDetectionState == EDetectionState::Searching);
 }
 
-void ANPC_AIController::ResetSuspicion()
+void ANPC_AIController::ResetSuspicion() //replaced with ResetDetectionToState
 {
 	DetectionPercentage = 0;
 
@@ -229,6 +237,29 @@ void ANPC_AIController::ResetSuspicion()
 void ANPC_AIController::SetDetectionState(EDetectionState DetectionState)
 {
 	CurrentDetectionState = DetectionState;
+
 	GetBlackboardComponent()->SetValueAsEnum(BBKeys::DetectionStateKey, static_cast<uint8>(CurrentDetectionState));
 	OnDetectionStateChange(CurrentDetectionState);
+}
+
+void ANPC_AIController::ResetDetectionToState(EDetectionState DetectionState)
+{
+	switch (DetectionState)
+	{
+	case EDetectionState::Neutral:
+		DetectionPercentage = 0;
+		break;
+	case EDetectionState::Searching:
+		DetectionPercentage = ControlledPawn->StartSuspicionPercent;
+		break;
+	case EDetectionState::Investigating:
+		DetectionPercentage = ControlledPawn->StartInvestigatePercent;
+		break;
+	case EDetectionState::Alert:
+		DetectionPercentage = 1;
+		break;
+	default:
+		break;
+	}
+	SetDetectionState(DetectionState);
 }

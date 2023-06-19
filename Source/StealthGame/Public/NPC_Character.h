@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UAISettings* SettingsComponent;
 
+	
+
+
 
 public:
 	// Called every frame

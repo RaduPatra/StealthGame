@@ -7,7 +7,7 @@
 #include "BTService_CheckEscapeDistance.generated.h"
 
 /**
- * 
+ * Old class used for the previous last known location logic
  */
 UCLASS()
 class STEALTHGAME_API UBTService_CheckEscapeDistance : public UBTService

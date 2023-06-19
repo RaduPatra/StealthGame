@@ -22,9 +22,11 @@ class STEALTHGAME_API ANPC_AIController : public AAIController
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
+
+	UFUNCTION(BlueprintCallable)
 	void CreateSuspicionWidget();
-	float CalculateSuspiconRate();
-	void CalculateDetectionPercentage(float DeltaSeconds);
+
+	float CalculateSuspicionRate();
 
 	UFUNCTION(BlueprintCallable)
 	void ResetSuspicion();
@@ -33,17 +35,23 @@ public:
 
 	UPROPERTY(BlueprintReadWrite) //move back to ctrl? 
 	float DetectionPercentage;
-	
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnSuspicion();
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDetectionStateChange(EDetectionState DetectionState);
 
-	void SetDetectionState(EDetectionState DetectionState);
-	
+	UFUNCTION(BlueprintCallable)
+	void ResetDetectionToState(EDetectionState DetectionState);
+
 
 protected:
 	virtual void BeginPlay() override;
+
+	//EditDefaultsOnly, 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<class UWorldUserWidget> SuspicionMeterWidgetClass;
 
 private:
 	virtual void PostInitializeComponents() override;
@@ -56,6 +64,8 @@ private:
 	void SetTargetActor(AActor* NewTarget);
 
 	void CalculateDetectionLevel(float DeltaSeconds);
+
+	void SetDetectionState(EDetectionState DetectionState);
 
 	AActor* GetTargetActor() const;
 
@@ -78,21 +88,15 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float EscapeRadius;
-
-
+	
 	bool bIsTargetInSight = false;
-
-	//switch to an enum later
-
+	
 	UPROPERTY()
 	AActor* TargetActor;
 
 	UPROPERTY()
 	class ANPC_Character* ControlledPawn;
-
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<class UWorldUserWidget> SuspicionMeterWidgetClass;
-
+	
 	UPROPERTY()
 	TObjectPtr<UWorldUserWidget> ActiveSuspicionMeter;
 };

@@ -4,8 +4,7 @@ UENUM(BlueprintType)
 enum class EDetectionState : uint8
 {
 	Neutral,
-	Suspicious,
+	Searching,
 	Investigating,
 	Alert
-	
 };
