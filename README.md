@@ -1,7 +1,7 @@
 # Stealth Game 
 Hitman-inspired stealth game made with Unreal Engine requiring players to strategically use the environment in order to defeat enemies and achieve objectives.
 
-Work in progress demo : https://www.youtube.com/watch?v=qFmdNBOlCWE
+Work in progress demo : https://www.youtube.com/watch?v=qFmdNBOlCWE   
 Blueprints showcase : coming soon
 
 ## IMPLEMENTED FEATURES
