@@ -1,0 +1,16 @@
+﻿#include "Game/SNativeGameplayTags.h"
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Input_Move, "Input.Move");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Input_Jump, "Input.Jump");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Input_Primary, "Input.Primary");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Input_Secondary, "Input.Secondary");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Input_Look, "Input.Look");
+
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_ACTOR_STATE_DEAD, "Actor.State.Dead");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_ACTOR_INTERACTABLE_FAILREASON, "Actor.Interactable.FailReason");
+UE_DEFINE_GAMEPLAY_TAG(TAG_ACTOR_INTERACTABLE_FAILREASON_NONE, "Actor.Interactable.FailReason.None");
+UE_DEFINE_GAMEPLAY_TAG(TAG_ACTOR_INTERACTABLE_FAILREASON_OCCUPIED, "Actor.Interactable.FailReason.Occupied");
+UE_DEFINE_GAMEPLAY_TAG(TAG_ACTOR_INTERACTABLE_FAILREASON_INVALID, "Actor.Interactable.FailReason.Invalid");
+UE_DEFINE_GAMEPLAY_TAG(TAG_ACTOR_INTERACTABLE_FAILREASON_CHARACTER, "Actor.Interactable.FailReason.Character");
