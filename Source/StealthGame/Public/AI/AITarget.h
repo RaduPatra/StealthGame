@@ -53,7 +53,4 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "AI")
 	bool CanRequestTokens(const int Tokens) const;
 	virtual bool CanRequestTokens_Implementation(const int Tokens) const { return false; };
-
-	// virtual bool ReturnTokens(AActor* Requester) = 0;
-	// virtual bool CanRequestTokens(const int Tokens) const = 0;
 };

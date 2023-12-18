@@ -57,9 +57,8 @@ EBTNodeResult::Type USGBTTask_DashAttack::ExecuteTask(UBehaviorTreeComponent& Ow
 	{
 		TargetActor = Cast<AActor>(BlackboardComp->GetValueAsObject(TargetKey.SelectedKeyName));
 	}
-	AITarget = Cast<IAITarget>(TargetActor);
-
-	if (!AITarget) return EBTNodeResult::Failed;
+	// AITarget = Cast<IAITarget>(TargetActor);
+	// if (!AITarget) return EBTNodeResult::Failed;
 
 	// if (!IAITarget::Execute_CanRequestTokens(TargetActor, AttackTokens)) return EBTNodeResult::Failed;
 	CharMovement = MyController->GetPawn()->FindComponentByClass<UCharacterMovementComponent>();

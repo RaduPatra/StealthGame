@@ -4,6 +4,7 @@
 #include "Actor/DistractionProjectile.h"
 #include "Components/BoxComponent.h"
 #include "Interaction/InteractionComponent.h"
+#include "Perception/AISense_Hearing.h"
 
 // Sets default values
 ADistractionProjectile::ADistractionProjectile()
@@ -11,7 +12,7 @@ ADistractionProjectile::ADistractionProjectile()
 	PrimaryActorTick.bCanEverTick = true;
 
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("InteractionComponent");
-	
+
 	BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent"));
 	BoxComponent->SetupAttachment(RootComponent);
 	BoxComponent->SetSimulatePhysics(true);
@@ -38,11 +39,16 @@ void ADistractionProjectile::Throw(const FVector ThrowVelocity) const
 	BoxComponent->AddImpulse(ThrowVelocity, NAME_None, true);
 }
 
-void ADistractionProjectile::OnSleep(UPrimitiveComponent* PrimitiveComponent, FName Name)
+void ADistractionProjectile::OnSleep(UPrimitiveComponent* PrimitiveComponent, FName BoneName)
 {
 	bIsSleeping = true;
-	// PrimitiveComponent->SetSimulatePhysics(false);
-	// UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), NoiseLoudness, this, NoiseRange);
+
+	const FGameplayTag InteractableType = ISInteractable::Execute_GetInteractableType(InteractionComponent);
+	const FName NoiseTag = InteractableType.GetTagName();
+	PrimitiveComponent->SetSimulatePhysics(false);
+	UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), NoiseLoudness, this, NoiseRange, NoiseTag);
+
+				
 }
 
 

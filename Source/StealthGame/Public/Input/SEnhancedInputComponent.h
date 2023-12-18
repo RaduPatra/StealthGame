@@ -80,23 +80,4 @@ void USEnhancedInputComponent::BindAbilityInputEvents(UInputConfig* InputConfig,
 		int& CompletedHandle = ActionEventHandles.FindOrAdd({AbilityTag, ETriggerEvent::Completed});
 		CompletedHandle = CompletedBinding.GetHandle();
 	}
-
-	/*if (const FInputData* InputData = InputConfig->GetInputDataForTag(InputTag))
-	{
-		UInputAction* InputAction = InputData->InputAction;
-		if (!ensureAlways(InputAction)) return;
-
-		FGameplayTag TriggeredEventTag = InputData->EventToSendForTrigger.FindRef(ETriggerEvent::Triggered);
-		const FEnhancedInputActionEventBinding& TriggeredBinding = BindAction(
-			InputAction, ETriggerEvent::Triggered, Object, TriggerFunc, InputTag, TriggeredEventTag);
-		int& TriggeredHandle = ActionEventHandles.FindOrAdd({InputTag, ETriggerEvent::Triggered});
-		TriggeredHandle = TriggeredBinding.GetHandle();
-
-
-		FGameplayTag CompletedEventTag = InputData->EventToSendForTrigger.FindRef(ETriggerEvent::Completed);
-		const FEnhancedInputActionEventBinding& CompletedBinding = BindAction(
-			InputAction, ETriggerEvent::Completed, Object, CompletedFunc, InputTag, CompletedEventTag);
-		int& CompletedHandle = ActionEventHandles.FindOrAdd({InputTag, ETriggerEvent::Completed});
-		CompletedHandle = CompletedBinding.GetHandle();
-	}*/
 }

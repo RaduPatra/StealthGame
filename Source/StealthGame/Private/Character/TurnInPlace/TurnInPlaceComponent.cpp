@@ -36,11 +36,10 @@ void UTurnInPlaceComponent::StartTurnInPlace(FRotator TargetRotation)
 	float DeltaYaw = EndYaw - StartYaw;
 	DeltaYaw = FMath::UnwindDegrees(DeltaYaw);
 
-
 	//if the desired angle is 180, add 1 to the end yaw so that the character turns in the correct direction
-	if (FMath::IsNearlyEqual(FMath::Abs(DesiredYaw), 180.0f))
+	if (FMath::IsNearlyEqual(FMath::Abs(DeltaYaw), 180.0f))
 	{
-		EndYaw = TargetRotation.Yaw + 1;
+		EndYaw = FMath::UnwindDegrees(TargetRotation.Yaw + 1);
 		DeltaYaw = EndYaw - StartYaw;
 		DeltaYaw = FMath::UnwindDegrees(DeltaYaw);
 	}

@@ -53,13 +53,7 @@ void USThrowAction::Initialize(FGameplayActionData& NewActionData, USGameplayAct
 	CharacterMovementComponent = Character->GetCharacterMovement();
 }
 
-//throw action
 void USThrowAction::ActionActivated()
 {
 	Super::ActionActivated();
-
-	// if (ACharacter* Character = Cast<ACharacter>(GetOwnerActor()))
-	// {
-	// 	CharacterMovementComponent = Character->GetCharacterMovement();
-	// }
 }

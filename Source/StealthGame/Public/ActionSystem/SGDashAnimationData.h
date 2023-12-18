@@ -23,5 +23,4 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	float DashEndDistance;
-
 };

@@ -120,8 +120,7 @@ void USDashAction::TickAction(float DeltaTime)
 		{
 			bLoopStarted = true;
 			AnimInstance->SetRootMotionMode(ERootMotionMode::IgnoreRootMotion);
-			// SendGameplayEvent2(LoopStartedEventTag);
-			IISGTagEventInterface::Execute_SendGameplayEvent2(this, LoopStartedEventTag);
+			Execute_SendGameplayEvent2(this, LoopStartedEventTag);
 		}
 
 		UpdateDash(DeltaTime);
@@ -177,7 +176,7 @@ void USDashAction::UpdateDash(float DeltaTime)
 void USDashAction::StartEndingDash()
 {
 	CharacterMovementComponent->SetMovementMode(MOVE_Walking);
-	AnimInstance->SetRootMotionMode(ERootMotionMode::RootMotionFromMontagesOnly); //save RM mode in start?
+	AnimInstance->SetRootMotionMode(ERootMotionMode::RootMotionFromMontagesOnly);
 	AnimInstance->Montage_JumpToSection(DashEndSectionName, DashMontage);
 
 	if (bShouldLerpTimeDilation)

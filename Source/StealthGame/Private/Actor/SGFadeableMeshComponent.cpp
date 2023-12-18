@@ -15,35 +15,48 @@ bool USGFadeableMeshComponent::ContainsParameter(const UMaterialInterface* Mater
 	return ParamValue != -1;
 }
 
-// Called when the game starts
 void USGFadeableMeshComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	MeshComponent = GetOwner()->FindComponentByClass<UMeshComponent>();
-	ensure(MeshComponent);
+
+	if (!ensure(MeshComponent) || !ensure(OccludedMaterial))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MeshComponent or OccludedMaterial do not exist."));
+		return;
+	}
 
 	OriginalMaterials = MeshComponent->GetMaterials();
+	if (OriginalMaterials.Num() <= 0)
+	{
+		return;
+	}
 
 	//check if original has required parameter. If not, use given OccludedMaterial
-	const bool bUseOriginalMaterial = bTryUseOriginalMaterial && ContainsParameter(OriginalMaterials[0], OccludedParamName);
-	if (bUseOriginalMaterial)
+	const bool bCanUseOriginal = ContainsParameter(OriginalMaterials[0], OccludedParamName);
+	const bool bUseOriginalMaterial = bTryUseOriginalMaterial && bCanUseOriginal;
+
+	MaterialToFade = bUseOriginalMaterial ? OriginalMaterials[0] : OccludedMaterial;
+
+	if (bUseOriginalMaterial && !bCanUseOriginal)
 	{
-		//todo - check and add all materials instead of just first one
-		MaterialToFade = OriginalMaterials[0];
-	}
-	else
-	{
-		MaterialToFade = OccludedMaterial;
+		UE_LOG(LogTemp, Warning, TEXT("OriginalMaterial doesn't contain required parameter %s"),
+		       *OccludedParamName.ToString());
 	}
 
-	if (!bUseOriginalMaterial || !ContainsParameter(OccludedMaterial, OccludedParamName))
+	const bool bCanOcclude = OccludedMaterial && ContainsParameter(OccludedMaterial, OccludedParamName);
+	if (!bUseOriginalMaterial && !bCanOcclude)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OccludedMaterial doesn't contain required parameter %s"), *OccludedParamName.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("OccludedMaterial doesn't contain required parameter %s"),
+		       *OccludedParamName.ToString());
 	}
+
+	
 }
 
 void USGFadeableMeshComponent::OccludeMesh()
 {
+	if (!MaterialToFade) return;
 	if (!DynamicMat)
 	{
 		DynamicMat = MeshComponent->CreateDynamicMaterialInstance(0, MaterialToFade);
@@ -51,6 +64,7 @@ void USGFadeableMeshComponent::OccludeMesh()
 
 	DynamicMat->SetScalarParameterValue(OccludedParamName, OpacityValue);
 	MeshComponent->SetMaterial(0, DynamicMat);
+
 }
 
 void USGFadeableMeshComponent::RevertMesh()

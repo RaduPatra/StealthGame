@@ -126,17 +126,5 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	USGameplayActionComponent* ActionComponent;
-
-	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Throw, meta = (AllowPrivateAccess = "true"))
-	float ProjectileRadius = 10.f;*/
-	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Throw, meta = (AllowPrivateAccess = "true"))
-	float SplineScale = .2;*/
-
-	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Throw, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<ADistractionProjectile> ProjectileClass;*/
-
-	/*UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Throw, meta = (AllowPrivateAccess = "true"))
-	UStaticMesh* SplineMeshToUse;*/
-
 	
 };

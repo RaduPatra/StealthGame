@@ -56,13 +56,9 @@ void UAIManagerSubsystem::AssignNoiseStimuli()
 		                                        TargetStimulus.StimulusLocation,
 		                                        PathCost);
 		if (Result != ENavigationQueryResult::Success) continue;
-		const float DistanceToSound = PathCost;
-
-		/*const float DistanceToSound = FVector::Distance(NPC->GetPawn()->GetActorLocation(),
-		                                                TargetStimulus.StimulusLocation);*/
-		if (DistanceToSound < ClosestDistance)
+		if (PathCost < ClosestDistance)
 		{
-			ClosestDistance = DistanceToSound;
+			ClosestDistance = PathCost;
 			ClosestNPC = NPC;
 		}
 	}

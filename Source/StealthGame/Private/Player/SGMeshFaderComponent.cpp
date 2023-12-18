@@ -32,7 +32,6 @@ void USGMeshFaderComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void USGMeshFaderComponent::OccludeMeshes()
 {
-	//copilot get player camera manger from owner player controler:
 	const APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	const APlayerController* PlayerController = Cast<APlayerController>(OwnerPawn->GetController());
 	if (!PlayerController) return;

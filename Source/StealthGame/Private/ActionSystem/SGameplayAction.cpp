@@ -62,7 +62,6 @@ bool USGameplayAction::TryStartAction(FGameplayActionData& NewActionData, USGame
 	if (!CanStart(NewActionData, OwnerComp))
 	{
 		// UE_LOG(LogTemp, Warning, TEXT("Action cannot start!"))
-		// CancelAction();
 		return false;
 	}
 

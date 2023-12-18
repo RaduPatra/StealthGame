@@ -52,11 +52,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float NoiseLoudness = 1.f;
 
+		
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float NoiseRange = 1200.f;
 
 	UFUNCTION()
-	void OnSleep(UPrimitiveComponent* PrimitiveComponent, FName Name);
+	void OnSleep(UPrimitiveComponent* PrimitiveComponent, FName BoneName);
 	virtual void BeginPlay() override;
 
 private:

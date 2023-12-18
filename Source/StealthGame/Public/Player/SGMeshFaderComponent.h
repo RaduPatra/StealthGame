@@ -23,7 +23,6 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	void OccludeMeshes();
-	// Called when the game starts
 
 public:
 	UFUNCTION(BlueprintCallable)
