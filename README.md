@@ -2,6 +2,7 @@
 Hitman-inspired stealth game made with Unreal Engine requiring players to strategically use the environment in order to defeat enemies and achieve objectives.
 
 Work in progress demo : https://www.youtube.com/watch?v=qFmdNBOlCWE   
+Trello: https://trello.com/b/cbTJYQu5/stealth-game   
 Blueprints showcase : coming soon   
 
 I used a combination of C++ and blueprints. Blueprints handle interactable actors, certain abilities and AI BT tasks/services, EQS contexts, event responses (e.g. damage reactions, ability activation responses), visual elements like UI widgets, and objects with simpler logic such as the falling lamp. They are also used for actions that frequently occur over time, for the convenience of latent nodes (Timeline, PlayMontage, AsyncTurnInPlace). The core logic is done in C++. Primarily, I start prototyping in blueprints for rapid iteration and transition logic to C++ as complexity increases and my objectives become clearer.
